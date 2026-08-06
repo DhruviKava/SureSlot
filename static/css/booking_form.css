@@ -1,0 +1,558 @@
+/* ===========================================================
+   Booking Core — Public Booking Form
+   =========================================================== */
+
+.booking-page {
+    max-width: 920px;
+    margin: 0 auto;
+    padding: 48px 24px 80px;
+}
+
+/* ---------- Premium Business Profile Header Card ---------- */
+
+.booking-header-card {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    padding: 24px;
+    margin-bottom: 32px;
+    box-shadow: var(--shadow-sm);
+    transition: transform 0.3s var(--ease), box-shadow 0.3s var(--ease);
+}
+
+.booking-header-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+}
+
+.booking-header-card__badge {
+    width: 60px;
+    height: 60px;
+    flex-shrink: 0;
+    border-radius: 16px;
+    background: linear-gradient(135deg, var(--color-accent), var(--color-accent-dark));
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    font-size: 1.6rem;
+    box-shadow: var(--shadow-md);
+    position: relative;
+    overflow: hidden;
+}
+
+.booking-header-card__badge::after {
+    content: "";
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: linear-gradient(180deg, rgba(255,255,255,0.15) 0%, rgba(0,0,0,0.1) 100%);
+}
+
+.booking-header-card__info {
+    flex-grow: 1;
+}
+
+.booking-header-card__type {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 4px;
+    font-size: 0.78rem;
+    font-weight: 600;
+}
+
+.type-tag {
+    background: var(--color-accent-soft);
+    color: var(--color-accent-dark);
+    padding: 2px 8px;
+    border-radius: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.bullet {
+    color: var(--color-border-strong);
+}
+
+.timezone-tag {
+    color: var(--color-ink-soft);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.booking-header-card__name {
+    font-size: 1.8rem;
+    font-weight: 800;
+    color: var(--color-ink);
+    margin: 0 0 6px 0;
+    letter-spacing: -0.03em;
+    line-height: 1.2;
+}
+
+.booking-header-card__subtitle {
+    font-size: 0.9rem;
+    color: var(--color-ink-soft);
+    margin: 0;
+}
+
+@media (max-width: 600px) {
+    .booking-header-card {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 16px;
+        padding: 20px;
+    }
+}
+
+.alert {
+    padding: 12px 16px;
+    border-radius: var(--radius);
+    margin-bottom: 20px;
+    font-size: 0.9rem;
+}
+
+.alert--error {
+    background: var(--color-clay-soft);
+    color: var(--color-clay);
+    border: 1px solid #F0C7C2;
+}
+
+/* ---------- Two-column layout ---------- */
+
+.booking-layout {
+    display: grid;
+    grid-template-columns: 1fr 280px;
+    gap: 28px;
+    align-items: start;
+}
+
+
+.booking-form {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    padding: 32px;
+    box-shadow: var(--shadow-md);
+}
+
+.form-step {
+    border: none;
+    padding: 0;
+    margin: 0 0 34px;
+}
+
+.form-step__legend {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 700;
+    font-size: 1.02rem;
+    margin-bottom: 16px;
+    padding: 0;
+}
+
+.form-step__num {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    background: var(--color-ink);
+    color: #fff;
+    font-size: 0.8rem;
+    font-family: var(--font-data);
+}
+
+.form-step__optional {
+    font-weight: 400;
+    color: var(--color-ink-soft);
+    font-size: 0.85rem;
+}
+
+/* ---------- Service cards ---------- */
+
+.service-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 190px), 1fr));
+    gap: 12px;
+}
+
+.service-card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    border: 1.5px solid var(--color-border);
+    border-radius: var(--radius);
+    background: var(--color-surface);
+    padding: 16px;
+    cursor: pointer;
+    box-shadow: var(--shadow-sm);
+}
+
+.service-card:hover {
+    box-shadow: var(--shadow-md);
+    transform: translateY(-2px);
+    border-color: var(--color-border-strong);
+}
+
+.service-card input {
+    position: absolute;
+    opacity: 0;
+}
+
+.service-card:has(input:checked) {
+    border-color: var(--color-accent);
+    box-shadow: 0 0 0 2px var(--color-accent-soft), var(--shadow-md);
+}
+
+.service-card__check {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: var(--color-accent);
+    color: #fff;
+    font-size: 0.7rem;
+    display: none;
+    align-items: center;
+    justify-content: center;
+}
+
+.service-card:has(input:checked) .service-card__check {
+    display: flex;
+}
+
+.service-card__icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 42px;
+    height: 42px;
+    border-radius: 12px;
+    font-size: 1.2rem;
+    margin-bottom: 6px;
+}
+
+.service-card.cat-hair .service-card__icon {
+    background: linear-gradient(135deg, #F3D9C6, #E8B894);
+}
+
+.service-card.cat-spa .service-card__icon {
+    background: linear-gradient(135deg, #D9E6DD, #B7D2C1);
+}
+
+.service-card.cat-consult .service-card__icon {
+    background: linear-gradient(135deg, #DCE3F0, #B9C6E3);
+}
+
+.service-card.cat-fitness .service-card__icon {
+    background: linear-gradient(135deg, #F0DCC9, #E0BD92);
+}
+
+.service-card.cat-medical .service-card__icon {
+    background: linear-gradient(135deg, #D9E8EC, #B3D4DC);
+}
+
+.service-card.cat-photo .service-card__icon {
+    background: linear-gradient(135deg, #E8D9EC, #CFAFD9);
+}
+
+.service-card.cat-default .service-card__icon {
+    background: linear-gradient(135deg, var(--color-accent-soft), var(--color-sage-soft));
+}
+
+.service-card__name {
+    font-weight: 700;
+    font-size: 0.96rem;
+}
+
+.service-card__meta {
+    font-size: 0.8rem;
+    color: var(--color-ink-soft);
+    font-family: var(--font-data);
+}
+
+.service-card__deposit-tag {
+    font-size: 0.65rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    color: var(--color-accent-dark);
+    background: var(--color-accent-soft);
+    width: fit-content;
+    padding: 2px 7px;
+    border-radius: 5px;
+    margin-top: 4px;
+}
+
+/* ---------- Inputs ---------- */
+
+.form-select,
+.form-input {
+    width: 100%;
+    padding: 12px 14px;
+    border: 1.5px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    background: var(--color-surface);
+    font-family: var(--font-ui);
+    font-size: 0.95rem;
+    color: var(--color-ink);
+    margin-bottom: 10px;
+}
+
+.form-select:focus,
+.form-input:focus {
+    outline: none;
+    border-color: var(--color-accent);
+    box-shadow: 0 0 0 3px var(--color-accent-soft);
+}
+
+/* ---------- Slots ---------- */
+
+.slots-grid {
+    margin-top: 14px;
+}
+
+.slots-placeholder {
+    color: var(--color-ink-soft);
+    font-size: 0.88rem;
+}
+
+.slots-placeholder--error {
+    color: var(--color-clay);
+}
+
+.slots-grid-inner {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(84px, 1fr));
+    gap: 9px;
+}
+
+.slot-btn {
+    font-family: var(--font-data);
+    font-size: 0.86rem;
+    font-weight: 600;
+    padding: 10px 6px;
+    border: 1.5px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    background: var(--color-surface);
+    color: var(--color-ink);
+    cursor: pointer;
+}
+
+.slot-btn:hover {
+    border-color: var(--color-accent);
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-sm);
+}
+
+.slot-btn.is-selected {
+    background: var(--color-accent);
+    border-color: var(--color-accent);
+    color: #fff;
+    box-shadow: var(--shadow-md);
+}
+
+/* ---------- Submit ---------- */
+
+.submit-btn {
+    width: 100%;
+    padding: 15px;
+    border: none;
+    border-radius: var(--radius-sm);
+    background: var(--color-ink);
+    color: #fff;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.submit-btn:disabled {
+    background: #E5E2DA;
+    color: var(--color-ink-soft);
+    cursor: not-allowed;
+}
+
+.submit-btn:not(:disabled):hover {
+    background: var(--color-accent);
+    box-shadow: var(--shadow-md);
+    transform: translateY(-1px);
+}
+
+/* ---------- Sticky summary sidebar ---------- */
+
+.booking-summary {
+    position: sticky;
+    top: 24px;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    padding: 22px;
+    box-shadow: var(--shadow-md);
+}
+
+.booking-summary__title {
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    font-weight: 700;
+    color: var(--color-ink-soft);
+    margin-bottom: 14px;
+}
+
+.booking-summary__empty {
+    font-size: 0.88rem;
+    color: var(--color-ink-faint);
+}
+
+.booking-summary__row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--color-border);
+}
+
+.booking-summary__icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 11px;
+    background: var(--color-accent-soft);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+    flex-shrink: 0;
+    overflow: hidden;
+}
+
+.booking-summary__service {
+    font-weight: 700;
+    font-size: 0.95rem;
+}
+
+.booking-summary__sub {
+    font-size: 0.78rem;
+    color: var(--color-ink-soft);
+}
+
+.booking-summary__line {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.88rem;
+    color: var(--color-ink-soft);
+    margin-bottom: 8px;
+}
+
+.booking-summary__line span:last-child {
+    color: var(--color-ink);
+    font-weight: 600;
+    font-family: var(--font-data);
+}
+
+.booking-summary__deposit {
+    margin-top: 10px;
+    padding: 10px 12px;
+    background: var(--color-amber-soft);
+    color: #A87423;
+    border-radius: var(--radius-sm);
+    font-size: 0.78rem;
+    font-weight: 600;
+}
+
+@media (max-width: 480px) {
+    .booking-page {
+        padding: 24px 16px 60px;
+    }
+
+    .booking-form {
+        padding: 20px;
+    }
+}
+
+/* Real service photo — bleeds to the card's edges (offsetting the card's
+   own padding) so it reads as a proper photo banner, not a small icon.
+   overflow:hidden + a scale transform on the <img> itself (not the
+   container) gives a clean zoom-on-hover without affecting layout. */
+.service-card__photo {
+    display: block;
+    margin: -16px -16px 6px -16px;
+    height: 110px;
+    overflow: hidden;
+    border-radius: var(--radius) var(--radius) 0 0;
+}
+
+.service-card__photo img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.35s ease;
+}
+
+.service-card:hover .service-card__photo img {
+    transform: scale(1.06);
+}
+
+@media (max-width: 800px) {
+    .booking-layout {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+
+    .booking-summary {
+        order: -1;
+        position: static;
+        margin-bottom: 8px;
+    }
+}
+
+/* Modern side-by-side layout inside the booking form card for desktop screens */
+.booking-form__grid-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 36px;
+    margin-top: 34px;
+    border-top: 1px solid var(--color-border);
+    padding-top: 34px;
+}
+
+.booking-form__grid-col {
+    display: flex;
+    flex-direction: column;
+}
+
+.booking-form__grid-col--details {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.details-input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.booking-form__grid-col--details .submit-btn {
+    margin-top: auto;
+}
+
+@media (max-width: 768px) {
+    .booking-form__grid-row {
+        grid-template-columns: 1fr;
+        gap: 30px;
+        margin-top: 24px;
+        padding-top: 24px;
+    }
+}

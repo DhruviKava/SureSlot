@@ -1,0 +1,110 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Manage Staff — {{ tenant.name }}{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+<link rel="stylesheet" href="{% static 'css/booking_form.css' %}">
+<link rel="stylesheet" href="{% static 'css/manage.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="app-shell">
+
+{% include 'bookings/_sidebar.html' with active_page='staff' %}
+
+    <main class="main">
+        <header class="main__header">
+            <h1 class="main__title">Staff</h1>
+        </header>
+
+        {% if messages %}
+        {% for message in messages %}
+        <div class="alert {% if message.tags == 'error' %}alert--error{% else %}alert--success{% endif %}">
+            {{ message }}
+        </div>
+        {% endfor %}
+        {% endif %}
+
+        <section class="manage-card">
+            <h2 class="manage-card__title">Add a staff member</h2>
+            <form method="post" class="manage-form manage-form--inline">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="create">
+                <input type="text" name="name" placeholder="Full name" class="form-input" required>
+                <input type="text" name="role" placeholder="Role (optional)" class="form-input">
+                <button type="submit" class="submit-btn">Add staff member</button>
+            </form>
+        </section>
+
+        <section class="manage-card">
+            <h2 class="manage-card__title">Your staff</h2>
+            {% if staff_members %}
+            <table class="manage-table">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Role</th>
+                        <th>Status</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for staff in staff_members %}
+                    <tr class="{% if not staff.is_active %}is-inactive{% endif %}">
+                        <td><input type="text" name="name" value="{{ staff.name }}" class="manage-table__input"
+                                form="update-staff-{{ staff.id }}" required></td>
+                        <td><input type="text" name="role" value="{{ staff.role }}" class="manage-table__input"
+                                form="update-staff-{{ staff.id }}"></td>
+                        <td>
+                            {% if staff.is_active %}
+                            <span class="status-tag status-tag--active">Active</span>
+                            {% else %}
+                            <span class="status-tag status-tag--inactive">Hidden</span>
+                            {% endif %}
+                        </td>
+                        <td class="manage-table__actions">
+                            <button type="submit" form="update-staff-{{ staff.id }}"
+                                class="manage-table__save-btn">Save</button>
+                            {% if staff.is_active %}
+                            <button type="submit" form="deactivate-staff-{{ staff.id }}"
+                                class="manage-table__deactivate-btn"
+                                onclick="return confirm('Hide this staff member from booking availability? Existing bookings are not affected.');">
+                                Hide
+                            </button>
+                            {% else %}
+                            <button type="submit" form="reactivate-staff-{{ staff.id }}"
+                                class="manage-table__reactivate-btn">Show</button>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+
+            {% for staff in staff_members %}
+            <form method="post" id="update-staff-{{ staff.id }}" class="manage-table__hidden-form">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="update">
+                <input type="hidden" name="staff_id" value="{{ staff.id }}">
+            </form>
+            <form method="post" id="deactivate-staff-{{ staff.id }}" class="manage-table__hidden-form">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="deactivate">
+                <input type="hidden" name="staff_id" value="{{ staff.id }}">
+            </form>
+            <form method="post" id="reactivate-staff-{{ staff.id }}" class="manage-table__hidden-form">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="reactivate">
+                <input type="hidden" name="staff_id" value="{{ staff.id }}">
+            </form>
+            {% endfor %}
+            {% else %}
+            <p class="manage-empty">No staff members yet — add your first one above.</p>
+            {% endif %}
+        </section>
+    </main>
+
+</div>
+{% endblock %}

@@ -1,0 +1,373 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Booking Confirmed — {{ booking.tenant.name }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .confirmation-page {
+        max-width: 540px;
+        margin: 0 auto;
+        padding: 50px 20px;
+        text-align: center;
+    }
+
+    /* Animated SVG Checkmark */
+    .success-icon-wrapper {
+        margin-bottom: 24px;
+        display: flex;
+        justify-content: center;
+    }
+
+    .success-checkmark-svg {
+        width: 80px;
+        height: 80px;
+        display: block;
+    }
+    
+    .success-checkmark-svg circle {
+        stroke-dasharray: 166;
+        stroke-dashoffset: 166;
+        stroke-width: 2.5;
+        stroke-miterlimit: 10;
+        stroke: var(--color-sage);
+        fill: var(--color-sage-soft);
+        animation: strokeCircle 0.6s cubic-bezier(0.65, 0, 0.45, 1) forwards;
+    }
+    
+    .success-checkmark-svg path {
+        transform-origin: 50% 50%;
+        stroke-dasharray: 48;
+        stroke-dashoffset: 48;
+        stroke: var(--color-sage);
+        stroke-width: 3.5;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+        fill: none;
+        animation: strokeCheck 0.3s cubic-bezier(0.65, 0, 0.45, 1) 0.6s forwards;
+    }
+
+    @keyframes strokeCircle {
+        to {
+            stroke-dashoffset: 0;
+        }
+    }
+
+    @keyframes strokeCheck {
+        to {
+            stroke-dashoffset: 0;
+        }
+    }
+
+    .confirmation-title {
+        font-size: 2.2rem;
+        font-weight: 800;
+        letter-spacing: -0.04em;
+        margin-bottom: 8px;
+        color: var(--color-ink);
+    }
+
+    .confirmation-subtitle {
+        color: var(--color-ink-soft);
+        font-size: 1.05rem;
+        margin-bottom: 36px;
+        line-height: 1.5;
+    }
+
+    /* Premium Ticket Card */
+    .details-card {
+        background: var(--color-surface);
+        border: 1.5px solid var(--color-border);
+        border-radius: 20px;
+        padding: 36px;
+        box-shadow: var(--shadow-lg);
+        text-align: left;
+        margin-bottom: 32px;
+        position: relative;
+        overflow: visible; /* Need visible for side punch-holes */
+    }
+
+    .details-card::before {
+        content: "";
+        position: absolute;
+        top: -1.5px; left: -1.5px; right: -1.5px;
+        height: 6px;
+        background: linear-gradient(90deg, var(--color-accent) 0%, var(--color-sage) 100%);
+        border-radius: 20px 20px 0 0;
+    }
+
+    .details-card__header {
+        font-size: 0.72rem;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        font-weight: 700;
+        color: var(--color-ink-soft);
+        margin-bottom: 24px;
+        padding-bottom: 14px;
+        border-bottom: 1px solid var(--color-border);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .status-badge {
+        font-size: 0.68rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        padding: 4px 10px;
+        border-radius: 8px;
+    }
+
+    .status-badge--success {
+        background: var(--color-sage-soft);
+        color: var(--color-sage);
+    }
+    
+    .status-badge--warning {
+        background: var(--color-amber-soft);
+        color: #A87423;
+    }
+
+    .details-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 24px 20px;
+    }
+
+    @media (max-width: 480px) {
+        .details-grid {
+            grid-template-columns: 1fr;
+            gap: 20px;
+        }
+        .details-card {
+            padding: 28px 20px;
+        }
+    }
+
+    .detail-item {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+    }
+
+    .detail-label {
+        font-size: 0.76rem;
+        color: var(--color-ink-soft);
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.02em;
+    }
+
+    .detail-value {
+        font-size: 1rem;
+        font-weight: 700;
+        color: var(--color-ink);
+        line-height: 1.4;
+    }
+
+    /* Ticket Perforation Divider & Side Holes */
+    .ticket-perforation {
+        position: relative;
+        margin: 28px -36px;
+        border-top: 2px dashed var(--color-border);
+        height: 0;
+    }
+
+    .ticket-perforation::before,
+    .ticket-perforation::after {
+        content: "";
+        position: absolute;
+        top: -11px;
+        width: 22px;
+        height: 22px;
+        background: var(--color-bg);
+        border: 1.5px solid var(--color-border);
+        border-radius: 50%;
+    }
+
+    .ticket-perforation::before {
+        left: -11px;
+    }
+
+    .ticket-perforation::after {
+        right: -11px;
+    }
+
+    /* Barcode Footer */
+    .ticket-footer {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        gap: 10px;
+        margin-top: 10px;
+    }
+
+    .ticket-barcode {
+        opacity: 0.8;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        color: var(--color-ink);
+    }
+
+    .barcode-number {
+        font-family: var(--font-data);
+        font-size: 0.72rem;
+        letter-spacing: 0.25em;
+        color: var(--color-ink-soft);
+        font-weight: 700;
+        margin-top: 4px;
+        text-transform: uppercase;
+    }
+
+    .action-group {
+        display: flex;
+        gap: 12px;
+        justify-content: center;
+    }
+
+    @media (max-width: 480px) {
+        .action-group {
+            flex-direction: column;
+        }
+    }
+
+    .action-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 12px 24px;
+        font-size: 0.92rem;
+        font-weight: 700;
+        border-radius: var(--radius-sm);
+        text-decoration: none;
+        cursor: pointer;
+        transition: all 0.15s var(--ease);
+    }
+
+    .action-btn--primary {
+        background-color: var(--color-ink);
+        color: #fff;
+        border: none;
+    }
+
+    .action-btn--primary:hover {
+        background-color: var(--color-accent);
+        box-shadow: var(--shadow-md);
+        transform: translateY(-1px);
+    }
+
+    .action-btn--secondary {
+        background-color: transparent;
+        border: 1px solid var(--color-border-strong);
+        color: var(--color-ink-soft);
+    }
+
+    .action-btn--secondary:hover {
+        background-color: var(--color-border);
+        color: var(--color-ink);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="booking-page confirmation-page">
+    <div class="success-icon-wrapper">
+        <svg class="success-checkmark-svg" viewBox="0 0 52 52">
+            <circle cx="26" cy="26" r="25" fill="none"/>
+            <path fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8"/>
+        </svg>
+    </div>
+
+    <h1 class="confirmation-title">You're booked!</h1>
+    <p class="confirmation-subtitle">
+        We've confirmed your slot at <strong>{{ booking.tenant.name }}</strong>.
+    </p>
+
+    <div class="details-card" data-aos="zoom-in">
+        <div class="details-card__header">
+            <span>Appointment Pass</span>
+            {% if booking.deposit_required and not booking.deposit_paid %}
+            <span class="status-badge status-badge--warning">Deposit Pending</span>
+            {% else %}
+            <span class="status-badge status-badge--success">Confirmed</span>
+            {% endif %}
+        </div>
+
+        <div class="details-grid">
+            <div class="detail-item">
+                <span class="detail-label">Service</span>
+                <span class="detail-value">{{ booking.service.name }}</span>
+            </div>
+            
+            <div class="detail-item">
+                <span class="detail-label">Provider</span>
+                <span class="detail-value">{{ booking.staff.name|default:"Any available" }}</span>
+            </div>
+
+            <div class="detail-item">
+                <span class="detail-label">Date &amp; Time</span>
+                <span class="detail-value">{{ booking.appointment_datetime|date:"l, F j, Y" }}<br>{{ booking.appointment_datetime|time:"H:i" }}</span>
+            </div>
+
+            <div class="detail-item">
+                <span class="detail-label">Client</span>
+                <span class="detail-value">{{ booking.customer.name }}</span>
+            </div>
+        </div>
+
+        {% if booking.deposit_required and not booking.deposit_paid %}
+        <div style="margin-top: 24px; padding: 12px 14px; background: var(--color-amber-soft); color: #A87423; border-radius: var(--radius-sm); font-size: 0.82rem; font-weight: 600; line-height: 1.4;">
+            ⚠️ A deposit is required for this service. Please contact the business to complete the payment and fully secure your slot.
+        </div>
+        {% endif %}
+
+        <!-- Ticket Perforation Separator -->
+        <div class="ticket-perforation"></div>
+
+        <!-- Barcode Section -->
+        <div class="ticket-footer">
+            <div class="ticket-barcode">
+                <svg width="180" height="36" viewBox="0 0 100 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect x="2" width="2" height="20" fill="currentColor"/>
+                    <rect x="6" width="1" height="20" fill="currentColor"/>
+                    <rect x="9" width="3" height="20" fill="currentColor"/>
+                    <rect x="14" width="1" height="20" fill="currentColor"/>
+                    <rect x="17" width="2" height="20" fill="currentColor"/>
+                    <rect x="21" width="1" height="20" fill="currentColor"/>
+                    <rect x="24" width="4" height="20" fill="currentColor"/>
+                    <rect x="30" width="1.5" height="20" fill="currentColor"/>
+                    <rect x="34" width="2.5" height="20" fill="currentColor"/>
+                    <rect x="39" width="1" height="20" fill="currentColor"/>
+                    <rect x="42" width="3" height="20" fill="currentColor"/>
+                    <rect x="47" width="1" height="20" fill="currentColor"/>
+                    <rect x="50" width="2.5" height="20" fill="currentColor"/>
+                    <rect x="55" width="1.5" height="20" fill="currentColor"/>
+                    <rect x="58" width="4" height="20" fill="currentColor"/>
+                    <rect x="64" width="1" height="20" fill="currentColor"/>
+                    <rect x="67" width="2.5" height="20" fill="currentColor"/>
+                    <rect x="71" width="1.5" height="20" fill="currentColor"/>
+                    <rect x="75" width="3" height="20" fill="currentColor"/>
+                    <rect x="80" width="1" height="20" fill="currentColor"/>
+                    <rect x="83" width="2" height="20" fill="currentColor"/>
+                    <rect x="87" width="1" height="20" fill="currentColor"/>
+                    <rect x="90" width="3" height="20" fill="currentColor"/>
+                    <rect x="95" width="2.5" height="20" fill="currentColor"/>
+                </svg>
+                <div class="barcode-number">SURE-{{ booking.encoded_id|upper }}</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="action-group">
+        <a href="{% url 'home' %}" class="action-btn action-btn--primary">
+            Back to Directory
+        </a>
+        <button onclick="window.print()" class="action-btn action-btn--secondary">
+            Print Confirmation
+        </button>
+    </div>
+</div>
+{% endblock %}

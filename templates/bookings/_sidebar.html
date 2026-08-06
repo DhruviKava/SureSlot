@@ -1,0 +1,45 @@
+{% comment %}
+Shared dashboard sidebar — included by every authenticated tenant-owner
+page (Calendar, Services, Staff). Previously each page had its own
+hand-copied sidebar, which silently drifted out of sync (the booking
+link box and stats only existed on the Calendar page). Using one
+include means every page automatically gets the same sidebar, in the
+same order, with no risk of future drift.
+{% endcomment %}
+<aside class="sidebar">
+    <div class="sidebar__brand">SureSlot</div>
+
+    <label class="sidebar__label">Business</label>
+    <div class="sidebar__tenant-name">{{ tenant.name }}</div>
+
+    <label class="sidebar__label">Your booking link</label>
+    <div class="sidebar__link-box">
+        <input type="text" id="booking-link-input" class="sidebar__link-input"
+            value="{{ request.scheme }}://{{ request.get_host }}{% url 'booking-page' tenant.id %}" readonly>
+        <button type="button" id="copy-link-btn" class="sidebar__copy-btn">Copy</button>
+    </div>
+    <a class="sidebar__preview-link" href="{% url 'booking-page' tenant.id %}" target="_blank" rel="noopener">
+        Preview your booking page &rarr;
+    </a>
+
+    <nav class="sidebar__nav">
+        <a class="sidebar__nav-item {% if active_page == 'calendar' %}is-active{% endif %}"
+            href="{% url 'tenant-dashboard' %}">Calendar</a>
+        <a class="sidebar__nav-item {% if active_page == 'services' %}is-active{% endif %}"
+            href="{% url 'manage-services' %}">Services</a>
+        <a class="sidebar__nav-item {% if active_page == 'staff' %}is-active{% endif %}"
+            href="{% url 'manage-staff' %}">Staff</a>
+    </nav>
+
+    {% if total_bookings_this_month is not None %}
+    <div class="sidebar__stat">
+        <span class="sidebar__stat-number">{{ total_bookings_this_month }}</span>
+        <span class="sidebar__stat-label">bookings this month</span>
+    </div>
+    {% endif %}
+
+    <form method="post" action="{% url 'logout' %}" class="sidebar__logout">
+        {% csrf_token %}
+        <button type="submit" class="sidebar__logout-btn">Log out</button>
+    </form>
+</aside>

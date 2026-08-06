@@ -1,0 +1,87 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Pay deposit — {{ tenant.name }}{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/booking_form.css' %}">
+<link rel="stylesheet" href="{% static 'css/auth.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="auth-page__form-side" style="min-height:100vh;">
+    <div class="auth-card">
+        <div class="auth-card__brand">{{ tenant.name }}</div>
+        <h1 class="auth-card__title">Pay deposit to confirm</h1>
+        <p class="auth-card__subtitle">
+            A {{ deposit_pct }}% deposit of
+            <strong>₹{{ amount_display }}</strong>
+            is required to confirm your <strong>{{ service.name }}</strong> booking.
+        </p>
+
+        <div class="booking-summary__line" style="margin-bottom:8px;">
+            <span>Service</span><span>{{ service.name }}</span>
+        </div>
+        <div class="booking-summary__line" style="margin-bottom:20px;">
+            <span>Deposit ({{ deposit_pct }}%)</span>
+            <span>₹{{ amount_display }}</span>
+        </div>
+
+        <button id="rzp-pay-btn" class="submit-btn">
+            Pay ₹{{ amount_display }} to confirm
+        </button>
+
+        <form id="rzp-verify-form" method="POST" action="{{ verify_url }}" style="display:none;">
+            {% csrf_token %}
+            <input type="hidden" name="razorpay_payment_id" id="rzp_payment_id">
+            <input type="hidden" name="razorpay_order_id" id="rzp_order_id">
+            <input type="hidden" name="razorpay_signature" id="rzp_signature">
+        </form>
+
+        <a href="{% url 'booking-page' tenant.id %}"
+           style="display:block;text-align:center;margin-top:14px;font-size:0.85rem;color:var(--color-ink-soft);">
+            Cancel and go back
+        </a>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script>
+var options = {
+    key: "{{ razorpay_key_id }}",
+    amount: "{{ amount_paise }}",
+    currency: "INR",
+    name: "{{ tenant.name }}",
+    description: "Deposit for {{ service.name }}",
+    order_id: "{{ razorpay_order_id }}",
+    prefill: {
+        name: "{{ customer_name }}",
+        email: "{{ customer_email }}",
+    },
+    theme: { color: "#D97757" },
+    handler: function (response) {
+        // Payment succeeded — send the three IDs to our verify endpoint.
+        // The backend checks the cryptographic signature before creating
+        // the booking, so this client-side handler can't be faked.
+        document.getElementById('rzp_payment_id').value = response.razorpay_payment_id;
+        document.getElementById('rzp_order_id').value = response.razorpay_order_id;
+        document.getElementById('rzp_signature').value = response.razorpay_signature;
+        document.getElementById('rzp-verify-form').submit();
+    },
+    modal: {
+        ondismiss: function () {
+            // Customer closed the modal without paying — do nothing.
+            // The session still has their pending booking so they
+            // can click "Pay" again without re-filling the form.
+        }
+    }
+};
+
+document.getElementById('rzp-pay-btn').addEventListener('click', function () {
+    var rzp = new Razorpay(options);
+    rzp.open();
+});
+</script>
+{% endblock %}

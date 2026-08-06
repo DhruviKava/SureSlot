@@ -1,0 +1,213 @@
+/* Service / Staff management pages */
+
+.manage-card {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    padding: 20px 24px;
+    margin-bottom: 24px;
+}
+
+.manage-card__title {
+    font-size: 1rem;
+    font-weight: 700;
+    margin: 0 0 14px 0;
+    color: var(--color-ink);
+}
+
+.manage-form--inline {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+}
+
+.manage-form--inline .form-input {
+    width: auto;
+    flex: 1;
+    min-width: 140px;
+    margin-bottom: 0;
+}
+
+.manage-form__checkbox {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.85rem;
+    color: var(--color-ink-soft);
+    white-space: nowrap;
+}
+
+.manage-form--inline .submit-btn {
+    width: auto;
+    padding: 10px 18px;
+}
+
+.manage-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.manage-table th {
+    text-align: left;
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--color-ink-soft);
+    padding: 8px 8px;
+    border-bottom: 1px solid var(--color-border);
+}
+
+.manage-table td {
+    padding: 8px 8px;
+    border-bottom: 1px solid var(--color-border);
+    vertical-align: middle;
+}
+
+.manage-table tr.is-inactive {
+    opacity: 0.55;
+}
+
+.manage-table__input {
+    width: 100%;
+    padding: 6px 8px;
+    border: 1px solid transparent;
+    border-radius: 6px;
+    background: transparent;
+    font-family: var(--font-ui);
+    font-size: 0.88rem;
+    color: var(--color-ink);
+}
+
+.manage-table__input:hover,
+.manage-table__input:focus {
+    border-color: var(--color-border);
+    background: var(--color-bg);
+    outline: none;
+}
+
+.manage-table__input--narrow {
+    width: 90px;
+}
+
+.manage-table__actions {
+    display: flex;
+    gap: 6px;
+    white-space: nowrap;
+}
+
+.manage-table__save-btn,
+.manage-table__deactivate-btn,
+.manage-table__reactivate-btn {
+    font-family: var(--font-ui);
+    font-size: 0.78rem;
+    font-weight: 600;
+    padding: 6px 10px;
+    border-radius: 6px;
+    cursor: pointer;
+    border: 1px solid var(--color-border);
+    background: var(--color-bg);
+    color: var(--color-ink);
+}
+
+.manage-table__save-btn:hover {
+    border-color: var(--color-accent);
+    color: var(--color-accent);
+}
+
+.manage-table__deactivate-btn:hover {
+    border-color: var(--color-clay);
+    color: var(--color-clay);
+}
+
+.manage-table__reactivate-btn:hover {
+    border-color: var(--color-sage);
+    color: var(--color-sage);
+}
+
+.manage-table__hidden-form {
+    display: none;
+}
+
+.status-tag {
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    padding: 2px 8px;
+    border-radius: 10px;
+}
+
+.status-tag--active {
+    background: #E8F0E8;
+    color: #4C6B4C;
+}
+
+.status-tag--inactive {
+    background: #EFEAE3;
+    color: var(--color-ink-soft);
+}
+
+.manage-empty {
+    color: var(--color-ink-soft);
+    font-size: 0.9rem;
+}
+
+.alert--success {
+    background: #E8F0E8;
+    color: #3D5A3D;
+    border: 1px solid #C9DAC9;
+    padding: 10px 14px;
+    border-radius: var(--radius);
+    margin-bottom: 16px;
+    font-size: 0.88rem;
+}
+
+/* ---------- Service photo upload ---------- */
+
+.manage-form__file {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    font-size: 0.78rem;
+    color: var(--color-ink-soft);
+}
+
+.manage-table__photo-cell {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+    min-width: 90px;
+}
+
+.manage-table__thumb {
+    width: 56px;
+    height: 56px;
+    object-fit: cover;
+    border-radius: 8px;
+    border: 1px solid var(--color-border);
+}
+
+.manage-table__thumb--empty {
+    width: 56px;
+    height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    font-size: 0.68rem;
+    color: var(--color-ink-faint);
+    background: var(--color-bg);
+    border: 1px dashed var(--color-border-strong);
+    border-radius: 8px;
+}
+
+.manage-table__file-input {
+    font-size: 0.72rem;
+    max-width: 130px;
+}
+
+.manage-form__checkbox--small {
+    font-size: 0.72rem;
+}

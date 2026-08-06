@@ -1,0 +1,115 @@
+/* ===========================================================
+   Booking Core — Design System
+   =========================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+:root {
+    /* Surfaces */
+    --color-bg: #F6F5F2;
+    --color-surface: #FFFFFF;
+    --color-surface-raised: #FFFFFF;
+    --color-ink: #16181D;
+    --color-ink-soft: #6B7280;
+    --color-ink-faint: #9CA3AF;
+    --color-border: #E8E6E0;
+    --color-border-strong: #D9D6CC;
+
+    /* Brand */
+    --color-accent: #D97757;
+    --color-accent-soft: #FBE9E1;
+    --color-accent-dark: #B85C3F;
+
+    /* Status */
+    --color-sage: #5E9C76;
+    --color-sage-soft: #E3F2E8;
+    --color-amber: #D9A24B;
+    --color-amber-soft: #FBF0DE;
+    --color-clay: #D4584A;
+    --color-clay-soft: #FBE5E2;
+
+    /* Channels */
+    --color-online: #5B7FA6;
+    --color-phone: #9B8AA6;
+    --color-walk_in: #5C6B73;
+    --color-app: #6FA68A;
+
+    /* Sidebar (dark) */
+    --color-sidebar: #14161B;
+    --color-sidebar-raised: #1E212A;
+    --color-sidebar-border: #2A2E38;
+    --color-sidebar-text: #E8E8EA;
+    --color-sidebar-text-soft: #8B8E98;
+
+    --font-ui: 'Plus Jakarta Sans', -apple-system, system-ui, sans-serif;
+    --font-data: 'JetBrains Mono', ui-monospace, monospace;
+
+    --radius-sm: 6px;
+    --radius: 12px;
+    --radius-lg: 18px;
+
+    --shadow-sm: 0 1px 2px rgba(22,24,29,0.04), 0 1px 1px rgba(22,24,29,0.03);
+    --shadow-md: 0 4px 12px rgba(22,24,29,0.06), 0 2px 4px rgba(22,24,29,0.04);
+    --shadow-lg: 0 12px 32px rgba(22,24,29,0.10), 0 4px 8px rgba(22,24,29,0.05);
+
+    --ease: cubic-bezier(0.2, 0, 0, 1);
+}
+
+* { box-sizing: border-box; }
+
+body {
+    margin: 0;
+    font-family: var(--font-ui);
+    background: var(--color-bg);
+    color: var(--color-ink);
+    -webkit-font-smoothing: antialiased;
+    font-size: 15px;
+    line-height: 1.5;
+}
+
+h1, h2, h3 { font-family: var(--font-ui); letter-spacing: -0.02em; margin: 0; }
+
+a { color: inherit; }
+
+button {
+    font-family: var(--font-ui);
+    transition: transform 0.12s var(--ease), background-color 0.15s var(--ease),
+                border-color 0.15s var(--ease), color 0.15s var(--ease), box-shadow 0.15s var(--ease);
+}
+button:active { transform: scale(0.97); }
+
+a, .nav-arrow, .chip, .stat-card, .sidebar__nav-item {
+    transition: background-color 0.15s var(--ease), border-color 0.15s var(--ease),
+                color 0.15s var(--ease), box-shadow 0.15s var(--ease), transform 0.15s var(--ease);
+}
+
+a:focus-visible,
+select:focus-visible,
+button:focus-visible,
+input:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    * { transition: none !important; }
+}
+
+/* Global fade-in transition on page load for consistent premium styling */
+.directory-container,
+.booking-page,
+.auth-page,
+.auth-page__form-side {
+    animation: globalPageFadeIn 0.4s var(--ease) both;
+}
+
+@keyframes globalPageFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(8px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}

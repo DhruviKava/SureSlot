@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Payment not completed — {{ tenant.name }}{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/booking_form.css' %}">
+<link rel="stylesheet" href="{% static 'css/auth.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="auth-page__form-side" style="min-height:100vh;">
+    <div class="auth-card">
+        <div class="auth-card__brand">{{ tenant.name }}</div>
+        {% if slot_taken %}
+            <h1 class="auth-card__title">Payment received, but the slot was taken</h1>
+            <p class="auth-card__subtitle">
+                Your card was charged, but that time slot was booked by someone
+                else while you were completing payment. Please contact {{ tenant.name }}
+                directly — your deposit will be refunded or applied to a new time.
+            </p>
+        {% else %}
+            <h1 class="auth-card__title">Payment not completed</h1>
+            <p class="auth-card__subtitle">
+                No charge was made and no booking was created. You can try again
+                whenever you're ready.
+            </p>
+        {% endif %}
+        <a class="submit-btn" style="display:block;text-align:center;text-decoration:none;margin-top:6px;"
+           href="{% url 'booking-page' tenant.id %}">
+            Back to booking page
+        </a>
+    </div>
+</div>
+{% endblock %}

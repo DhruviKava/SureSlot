@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}No business linked{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/booking_form.css' %}">
+<link rel="stylesheet" href="{% static 'css/auth.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="auth-page">
+    <div class="auth-card">
+        <div class="auth-card__brand">SureSlot</div>
+        <h1 class="auth-card__title">No business linked to this account</h1>
+        <p class="auth-card__subtitle">
+            This account isn't associated with a tenant, so there's no booking
+            dashboard to show. If you're a platform administrator, manage
+            businesses and users from the admin panel instead.
+        </p>
+        <a class="submit-btn" style="display:block;text-align:center;text-decoration:none;margin-top:16px;"
+           href="/admin/">
+            Go to admin
+        </a>
+    </div>
+</div>
+{% endblock %}

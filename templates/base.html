@@ -1,0 +1,63 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}SureSlot{% endblock %}</title>
+
+    <!-- Shared design tokens (colors, fonts, resets) used by every page -->
+    <link rel="stylesheet" href="{% static 'css/base.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css">
+
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+
+{% block content %}{% endblock %}
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js"></script>
+<script>
+AOS.init({
+    duration: 500,
+    once: true,
+    offset: 60,
+    easing: 'ease-out-cubic'
+});
+</script>
+<script>
+$(function () {
+    $('#copy-link-btn').on('click', function () {
+        var $input = $('#booking-link-input');
+        var $btn = $(this);
+        var text = $input.val();
+
+        function showCopied() {
+            var original = $btn.text();
+            $btn.text('Copied!');
+            setTimeout(function () { $btn.text(original); }, 1500);
+        }
+
+        if (navigator.clipboard && window.isSecureContext) {
+            navigator.clipboard.writeText(text).then(showCopied).catch(function () {
+                $input.select();
+                document.execCommand('copy');
+                showCopied();
+            });
+        } else {
+            $input.select();
+            try {
+                document.execCommand('copy');
+                showCopied();
+            } catch (err) {
+                alert('Could not copy automatically — the link is selected, press Ctrl+C (or Cmd+C) to copy.');
+            }
+        }
+    });
+});
+</script>
+{% block extra_js %}{% endblock %}
+
+</body>
+</html>

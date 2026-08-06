@@ -1,0 +1,14 @@
+Hello {{ booking.customer.name }},
+
+This is a reminder that you have an upcoming appointment for "{{ booking.service.name }}" at {{ booking.tenant.name }}.
+
+Appointment Details:
+-------------------
+Date & Time:  {{ local_dt|date:"F j, Y" }} at {{ local_dt|date:"g:i a" }}
+Staff Member: {% if booking.staff %}{{ booking.staff.name }}{% else %}Any Available{% endif %}
+Service Cost: INR {{ booking.service.price }}
+
+If you need to reschedule or cancel your appointment, please contact us at your earliest convenience.
+
+Thank you,
+The {{ booking.tenant.name }} Team

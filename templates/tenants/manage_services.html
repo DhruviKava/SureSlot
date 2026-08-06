@@ -1,0 +1,143 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Manage Services — {{ tenant.name }}{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+<link rel="stylesheet" href="{% static 'css/booking_form.css' %}">
+<link rel="stylesheet" href="{% static 'css/manage.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="app-shell">
+
+{% include 'bookings/_sidebar.html' with active_page='services' %}
+
+    <main class="main">
+        <header class="main__header">
+            <h1 class="main__title">Services</h1>
+        </header>
+
+        {% if messages %}
+        {% for message in messages %}
+        <div class="alert {% if message.tags == 'error' %}alert--error{% else %}alert--success{% endif %}">
+            {{ message }}
+        </div>
+        {% endfor %}
+        {% endif %}
+
+        <section class="manage-card">
+            <h2 class="manage-card__title">Add a new service</h2>
+            <form method="post" class="manage-form manage-form--inline" enctype="multipart/form-data">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="create">
+                <input type="text" name="name" placeholder="Service name" class="form-input" required>
+                <input type="number" name="duration_minutes" placeholder="Duration (min)" class="form-input" min="5" required>
+                <input type="number" name="price" placeholder="Price" class="form-input" step="0.01" min="0" required>
+                <label class="manage-form__checkbox">
+                    <input type="checkbox" name="requires_deposit"> Requires deposit
+                </label>
+                <input type="file" name="image" accept="image/*" class="form-input" style="font-size: 0.8rem;">
+                <button type="submit" class="submit-btn">Add service</button>
+            </form>
+        </section>
+
+        <section class="manage-card">
+            <h2 class="manage-card__title">Your services</h2>
+            {% if services %}
+            <table class="manage-table">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Duration</th>
+                        <th>Price</th>
+                        <th>Deposit</th>
+                        <th>Photo</th>
+                        <th>Status</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for service in services %}
+                    <tr class="{% if not service.is_active %}is-inactive{% endif %}">
+                        <td><input type="text" name="name" value="{{ service.name }}" class="manage-table__input" form="update-service-{{ service.id }}" required></td>
+                        <td><input type="number" name="duration_minutes" value="{{ service.duration_minutes }}" class="manage-table__input manage-table__input--narrow" form="update-service-{{ service.id }}" min="5" required></td>
+                        <td><input type="number" name="price" value="{{ service.price }}" class="manage-table__input manage-table__input--narrow" form="update-service-{{ service.id }}" step="0.01" min="0" required></td>
+                        <td>
+                            <label class="manage-form__checkbox">
+                                <input type="checkbox" name="requires_deposit" form="update-service-{{ service.id }}" {% if service.requires_deposit %}checked{% endif %}>
+                            </label>
+                        </td>
+                        <td>
+                            {% if service.image %}
+                                <div style="margin-bottom: 0.5rem;">
+                                    <img src="{{ service.image.url }}" alt="{{ service.name }}" style="max-height: 40px; border-radius: var(--radius-sm); display: block;">
+                                </div>
+                            {% endif %}
+                            <input type="file" name="image" accept="image/*" form="update-service-{{ service.id }}" style="font-size: 0.8rem; width: 160px;">
+                            {% if service.image %}
+                                <label style="font-size: 0.75rem; display: block; margin-top: 0.25rem;">
+                                    <input type="checkbox" name="remove_image" form="update-service-{{ service.id }}"> Remove
+                                </label>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if service.is_active %}
+                                <span class="status-tag status-tag--active">Active</span>
+                            {% else %}
+                                <span class="status-tag status-tag--inactive">Hidden</span>
+                            {% endif %}
+                        </td>
+                        <td class="manage-table__actions">
+                            <!-- These <form> tags sit OUTSIDE the table row (right
+                                 after it, still inside <tbody> via colspan trick is
+                                 messy — instead they're rendered just below the
+                                 table and linked back to their inputs via the
+                                 form="..." attribute above, which is the valid
+                                 HTML5 way to associate inputs with a form when the
+                                 form itself can't legally wrap a <tr>. -->
+                            <button type="submit" form="update-service-{{ service.id }}" class="manage-table__save-btn">Save</button>
+                            {% if service.is_active %}
+                            <button type="submit" form="deactivate-service-{{ service.id }}" class="manage-table__deactivate-btn"
+                                    onclick="return confirm('Hide this service from your booking page? Existing bookings are not affected.');">
+                                Hide
+                            </button>
+                            {% else %}
+                            <button type="submit" form="reactivate-service-{{ service.id }}" class="manage-table__reactivate-btn">Show</button>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+
+            <!-- One real <form> per row per action, placed outside the table
+                 entirely and linked to their inputs/buttons via the form="..."
+                 attribute above — the valid way to have form-per-row behavior
+                 in an HTML table without illegally nesting <form> inside <tr>. -->
+            {% for service in services %}
+            <form method="post" id="update-service-{{ service.id }}" class="manage-table__hidden-form" enctype="multipart/form-data">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="update">
+                <input type="hidden" name="service_id" value="{{ service.id }}">
+            </form>
+            <form method="post" id="deactivate-service-{{ service.id }}" class="manage-table__hidden-form">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="deactivate">
+                <input type="hidden" name="service_id" value="{{ service.id }}">
+            </form>
+            <form method="post" id="reactivate-service-{{ service.id }}" class="manage-table__hidden-form">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="reactivate">
+                <input type="hidden" name="service_id" value="{{ service.id }}">
+            </form>
+            {% endfor %}
+            {% else %}
+            <p class="manage-empty">No services yet — add your first one above.</p>
+            {% endif %}
+        </section>
+    </main>
+
+</div>
+{% endblock %}

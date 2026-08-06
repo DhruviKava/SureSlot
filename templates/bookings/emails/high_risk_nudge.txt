@@ -1,0 +1,19 @@
+Hello {{ booking.customer.name }},
+
+We are looking forward to seeing you shortly! 
+
+This is a quick confirmation request for your upcoming appointment for "{{ booking.service.name }}" at {{ booking.tenant.name }} which is scheduled to start in 2 hours.
+
+Appointment Details:
+-------------------
+Date & Time:  {{ local_dt|date:"F j, Y" }} at {{ local_dt|date:"g:i a" }}
+Staff Member: {% if booking.staff %}{{ booking.staff.name }}{% else %}Any Available{% endif %}
+
+{% if booking.deposit_required and not booking.deposit_paid %}
+IMPORTANT: A deposit is required to secure your booking. If you haven't already paid, please complete the payment to ensure your slot is not cancelled.
+{% endif %}
+
+If you cannot make it to your slot, please let us know immediately so that we can free up the time for other customers.
+
+Thank you,
+The {{ booking.tenant.name }} Team

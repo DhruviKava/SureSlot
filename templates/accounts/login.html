@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Log in — SureSlot{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/booking_form.css' %}">
+<link rel="stylesheet" href="{% static 'css/auth.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="auth-page">
+    <div class="auth-page__form-side">
+        <div class="auth-card">
+            <div class="auth-card__brand">SureSlot</div>
+            <h1 class="auth-card__title">Welcome back</h1>
+            <p class="auth-card__subtitle">Log in to access your business dashboard.</p>
+
+            {% if error %}
+            <div class="alert alert--error">{{ error }}</div>
+            {% endif %}
+
+            <form method="post" action="{% url 'login' %}" class="auth-form">
+                {% csrf_token %}
+                <label class="auth-form__label" for="email">Email</label>
+                <input type="email" name="email" id="email" class="form-input" required autofocus placeholder="you@business.com">
+
+                <label class="auth-form__label" for="password">Password</label>
+                <input type="password" name="password" id="password" class="form-input" required placeholder="••••••••">
+
+                <button type="submit" class="submit-btn">Log in</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="auth-page__visual">
+        <div class="visual__tag">SureSlot</div>
+
+        <div>
+            <div class="visual__headline">Stop losing revenue to <em>no-shows</em>, before they happen.</div>
+        </div>
+
+        <div class="visual__mock-card">
+            <span class="visual__mock-dot visual__mock-dot--high"></span>
+            <div>
+                <div class="visual__mock-text">Tuesday 3:00 PM — 73% risk</div>
+                <div class="visual__mock-sub">Unpaid deposit · 2 prior no-shows</div>
+            </div>
+        </div>
+
+        <div class="visual__stat-row">
+            <div><div class="visual__stat-num">89%</div><div class="visual__stat-label">Model accuracy</div></div>
+            <div><div class="visual__stat-num">24/7</div><div class="visual__stat-label">Live risk scoring</div></div>
+            <div><div class="visual__stat-num">0</div><div class="visual__stat-label">Setup cost</div></div>
+        </div>
+    </div>
+</div>
+{% endblock %}

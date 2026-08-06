@@ -1,0 +1,37 @@
+# Environment — NEVER commit this, it has your real passwords/keys
+.env
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.egg-info/
+dist/
+build/
+
+# Virtual environment
+bookingenv/
+venv/
+env/
+
+# Django
+staticfiles/
+migrations/
+.vscode/
+debugging_guide.md
+dump.rdb
+
+media/
+trained_models/
+Cloudinary_cred.png
+*.sqlite3
+db_booking
+
+# ML model (large binary, regenerated on server)
+ml/no_show_model.pkl
+ml/no_show_model_metadata.json
+
+# OS
+.DS_Store
+Thumbs.db

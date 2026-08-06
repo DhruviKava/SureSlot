@@ -1,0 +1,390 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ tenant.name }} — Dashboard{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+<style>
+    /* Custom Dialog/Modal Styles */
+    .dialog-overlay {
+        position: fixed;
+        top: 0; left: 0; right: 0; bottom: 0;
+        background: rgba(0, 0, 0, 0.4);
+        backdrop-filter: blur(4px);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        z-index: 2000;
+        opacity: 0;
+        transition: opacity 0.2s ease;
+    }
+    
+    .dialog-overlay.active {
+        opacity: 1;
+    }
+
+    .dialog-box {
+        background: var(--color-surface);
+        border: 1.5px solid var(--color-border-strong);
+        border-radius: var(--radius-lg);
+        width: 90%;
+        max-width: 400px;
+        padding: 24px;
+        box-shadow: var(--shadow-lg);
+        transform: scale(0.9);
+        transition: transform 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+    
+    .dialog-overlay.active .dialog-box {
+        transform: scale(1);
+    }
+
+    .dialog-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 14px;
+    }
+
+    .dialog-title {
+        font-size: 1.15rem;
+        font-weight: 800;
+        color: var(--color-ink);
+        margin: 0;
+        letter-spacing: -0.02em;
+    }
+
+    .dialog-close-btn {
+        background: none;
+        border: none;
+        font-size: 1.6rem;
+        color: var(--color-ink-soft);
+        cursor: pointer;
+        transition: color 0.15s ease;
+        padding: 0;
+        line-height: 1;
+    }
+
+    .dialog-close-btn:hover {
+        color: var(--color-ink);
+    }
+
+    .dialog-body {
+        font-size: 0.92rem;
+        color: var(--color-ink-soft);
+        line-height: 1.5;
+        margin-bottom: 24px;
+    }
+
+    .dialog-footer {
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+    }
+
+    .dialog-btn {
+        padding: 9px 18px;
+        font-size: 0.88rem;
+        font-weight: 700;
+        border-radius: var(--radius-sm);
+        border: none;
+        cursor: pointer;
+        transition: all 0.15s var(--ease);
+    }
+
+    .dialog-btn--cancel {
+        background: transparent;
+        border: 1px solid var(--color-border-strong);
+        color: var(--color-ink-soft);
+    }
+
+    .dialog-btn--cancel:hover {
+        background: var(--color-border);
+        color: var(--color-ink);
+    }
+
+    .dialog-btn--confirm {
+        background: var(--color-ink);
+        color: #fff;
+    }
+
+    .dialog-btn--confirm:hover {
+        background: var(--color-accent);
+        transform: translateY(-1px);
+        box-shadow: var(--shadow-sm);
+    }
+    
+    .dialog-btn--confirm.btn-danger {
+        background: var(--color-clay);
+        color: #fff;
+    }
+    
+    .dialog-btn--confirm.btn-danger:hover {
+        background: #C44C3F;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="app-shell">
+
+    {% include 'bookings/_sidebar.html' with active_page='calendar' %}
+
+    <main class="main">
+    {% if overbooking_suggestions %}
+    <div class="suggestions-panel">
+        <div class="suggestions-panel__header">
+            <span class="suggestions-panel__icon">🎯</span>
+            <div>
+                <div class="suggestions-panel__title">Smart scheduling suggestions</div>
+                <div class="suggestions-panel__subtitle">These upcoming slots have high no-show risk — consider accepting another booking in the same window.</div>
+            </div>
+        </div>
+        <div class="suggestions-panel__list">
+            {% for b in overbooking_suggestions %}
+            <div class="suggestion-row">
+                <div class="suggestion-row__when">
+                    <span class="suggestion-row__day">{{ b.appointment_datetime|date:"D, M j" }}</span>
+                    <span class="suggestion-row__time">{{ b.appointment_datetime|time:"H:i" }}</span>
+                </div>
+                <div class="suggestion-row__detail">
+                    <span class="suggestion-row__customer">{{ b.customer.name }}</span>
+                    <span class="suggestion-row__service">{{ b.service.name|default:"—" }}</span>
+                </div>
+                <div class="suggestion-row__risk">{% widthratio b.risk_score 1 100 %}% risk</div>
+                <div class="suggestion-row__action">Consider double-booking</div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+        <div class="stat-strip">
+        <div class="stat-card stat-card--accent">
+            <div class="stat-card__icon">📅</div>
+            <div class="stat-card__value">{{ total_bookings_this_month }}</div>
+            <div class="stat-card__label">Bookings this month</div>
+        </div>
+        <div class="stat-card stat-card--clay">
+            <div class="stat-card__icon">⚠️</div>
+            <div class="stat-card__value">{{ high_risk_count }}</div>
+            <div class="stat-card__label">High-risk upcoming</div>
+        </div>
+        <div class="stat-card stat-card--amber">
+            <div class="stat-card__icon">🚫</div>
+            <div class="stat-card__value">{{ no_show_count }}</div>
+            <div class="stat-card__label">No-shows this month</div>
+        </div>
+        <div class="stat-card stat-card--sage">
+            <div class="stat-card__icon">✅</div>
+            <div class="stat-card__value">{{ scheduled_count }}</div>
+            <div class="stat-card__label">Scheduled, upcoming</div>
+        </div>
+    </div>
+
+            <header class="main__header">
+            <h1 class="main__title">{{ month_name }} {{ year }}</h1>
+            <div class="main__nav-arrows">
+                <a class="nav-arrow" href="?year={{ prev_year }}&month={{ prev_month }}"
+                    aria-label="Previous month">&larr;</a>
+                <a class="nav-arrow" href="?year={{ next_year }}&month={{ next_month }}"
+                    aria-label="Next month">&rarr;</a>
+            </div>
+        </header>
+
+        <div class="calendar">
+            <div class="calendar__weekday-row">
+                <div class="calendar__weekday">Mon</div>
+                <div class="calendar__weekday">Tue</div>
+                <div class="calendar__weekday">Wed</div>
+                <div class="calendar__weekday">Thu</div>
+                <div class="calendar__weekday">Fri</div>
+                <div class="calendar__weekday">Sat</div>
+                <div class="calendar__weekday">Sun</div>
+            </div>
+
+            {% for week in weeks %}
+            <div class="calendar__week">
+                {% for cell in week %}
+                <div
+                    class="calendar__cell {% if not cell.is_current_month %}is-muted{% endif %} {% if cell.is_today %}is-today{% endif %}">
+                    <div class="calendar__date">{{ cell.date.day }}</div>
+
+                    {% for booking in cell.bookings %}
+                    <div class="chip chip--{{ booking.booking_channel }} {% if booking.status == 'scheduled' and is_owner and booking.is_past %}chip--actionable{% endif %}"
+                        title="{{ booking.customer.name }} — {{ booking.service.name }}"
+                        data-booking-id="{{ booking.encoded_id }}"
+                        data-status="{{ booking.status }}">
+                        <div class="chip__main">
+                            <span class="chip__time">{{ booking.appointment_datetime|time:"H:i" }}</span>
+                            <span class="chip__label">{{ booking.customer.name }}</span>
+                            {% if booking.risk_label %}
+                            <span class="chip__badge chip__badge--risk-{{ booking.risk_label }}">{{ booking.risk_label }} risk</span>
+                            {% elif booking.status == 'no_show' %}
+                            <span class="chip__badge chip__badge--noshow">No-show</span>
+                            {% elif booking.status == 'completed' %}
+                            <span class="chip__badge chip__badge--completed">Done</span>
+                            {% elif booking.status == 'cancelled' %}
+                            <span class="chip__badge chip__badge--cancelled">Cancelled</span>
+                            {% endif %}
+                        </div>
+                        {% if booking.status == 'scheduled' and is_owner and booking.is_past %}
+                        <div class="chip__actions">
+                            <button class="chip__action-btn chip__action-btn--complete"
+                                    data-booking-id="{{ booking.encoded_id }}" data-new-status="completed"
+                                    title="Mark as completed">✓</button>
+                            <button class="chip__action-btn chip__action-btn--noshow"
+                                    data-booking-id="{{ booking.encoded_id }}" data-new-status="no_show"
+                                    title="Mark as no-show">✗</button>
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endfor %}
+            </div>
+            {% endfor %}
+        </div>
+
+        <div class="legend">
+            <span class="legend__group-label">Channel:</span>
+            <span class="legend__item"><span class="legend__swatch chip--online"></span>Online</span>
+            <span class="legend__item"><span class="legend__swatch chip--phone"></span>Phone</span>
+            <span class="legend__item"><span class="legend__swatch chip--walk_in"></span>Walk-in</span>
+            <span class="legend__item"><span class="legend__swatch chip--app"></span>App</span>
+        </div>
+        <div class="legend">
+            <span class="legend__group-label">No-show risk (upcoming bookings):</span>
+            <span class="legend__item"><span class="legend__swatch chip__badge--risk-low"></span>Low</span>
+            <span class="legend__item"><span class="legend__swatch chip__badge--risk-medium"></span>Medium</span>
+            <span class="legend__item"><span class="legend__swatch chip__badge--risk-high"></span>High</span>
+        </div>
+        {% if is_owner %}
+        <p class="outcome-hint">Hover a scheduled booking to mark it complete or no-show.</p>
+        <!-- Custom Dialog Overlay -->
+        <div id="custom-dialog-overlay" class="dialog-overlay">
+            <div class="dialog-box">
+                <div class="dialog-header">
+                    <h3 class="dialog-title" id="dialog-title">Confirm Action</h3>
+                    <button class="dialog-close-btn" id="dialog-close-btn">&times;</button>
+                </div>
+                <div class="dialog-body" id="dialog-body">
+                    Are you sure you want to perform this action?
+                </div>
+                <div class="dialog-footer">
+                    <button class="dialog-btn dialog-btn--cancel" id="dialog-btn-cancel">Cancel</button>
+                    <button class="dialog-btn dialog-btn--confirm" id="dialog-btn-confirm">Confirm</button>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </main>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+{% if is_owner %}
+<script>
+$(function () {
+    var STATUS_URL_BASE = '/booking/';
+    var CSRF = '{{ csrf_token }}';
+
+    // Custom Modal Helpers
+    function showCustomConfirm(title, message, isDanger, onConfirm) {
+        var $overlay = $('#custom-dialog-overlay');
+        $('#dialog-title').text(title);
+        $('#dialog-body').text(message);
+        
+        var $confirmBtn = $('#dialog-btn-confirm');
+        if (isDanger) {
+            $confirmBtn.addClass('btn-danger');
+        } else {
+            $confirmBtn.removeClass('btn-danger');
+        }
+        $confirmBtn.text('Confirm');
+        $('#dialog-btn-cancel').show();
+        
+        // Bind events
+        $confirmBtn.off('click').on('click', function() {
+            closeCustomDialog();
+            onConfirm();
+        });
+        
+        $('#dialog-btn-cancel, #dialog-close-btn').off('click').on('click', closeCustomDialog);
+        
+        $overlay.css('display', 'flex').hide().fadeIn(150, function() {
+            $overlay.addClass('active');
+        });
+    }
+
+    function showCustomAlert(title, message) {
+        var $overlay = $('#custom-dialog-overlay');
+        $('#dialog-title').text(title);
+        $('#dialog-body').text(message);
+        
+        var $confirmBtn = $('#dialog-btn-confirm');
+        $confirmBtn.removeClass('btn-danger').text('OK');
+        $('#dialog-btn-cancel').hide();
+        
+        $confirmBtn.off('click').on('click', closeCustomDialog);
+        $('#dialog-close-btn').off('click').on('click', closeCustomDialog);
+        
+        $overlay.css('display', 'flex').hide().fadeIn(150, function() {
+            $overlay.addClass('active');
+        });
+    }
+
+    function closeCustomDialog() {
+        var $overlay = $('#custom-dialog-overlay');
+        $overlay.removeClass('active');
+        $overlay.fadeOut(150);
+    }
+
+    $(document).on('click', '.chip__action-btn', function (e) {
+        e.stopPropagation();
+        var $btn = $(this);
+        var bookingId = $btn.data('booking-id');
+        var newStatus = $btn.data('new-status');
+        var $chip = $btn.closest('.chip');
+
+        var confirmMsg = newStatus === 'no_show'
+            ? 'Mark this booking as a no-show?'
+            : 'Mark this booking as completed?';
+
+        showCustomConfirm('Confirm Action', confirmMsg, newStatus === 'no_show', function() {
+            $btn.prop('disabled', true).text('…');
+
+            $.ajax({
+                url: STATUS_URL_BASE + bookingId + '/status/',
+                method: 'POST',
+                data: { status: newStatus, csrfmiddlewaretoken: CSRF },
+            }).done(function (resp) {
+                if (!resp.ok) {
+                    showCustomAlert('Error', 'Could not update booking status.');
+                    $btn.prop('disabled', false).text(newStatus === 'no_show' ? '✗' : '✓');
+                    return;
+                }
+
+                $chip.removeClass('chip--actionable');
+                $chip.attr('data-status', newStatus);
+                $chip.find('.chip__actions').remove();
+                $chip.find('.chip__badge').remove();
+
+                var badgeClass = newStatus === 'no_show'
+                    ? 'chip__badge--noshow'
+                    : 'chip__badge--completed';
+                var badgeText = newStatus === 'no_show' ? 'No-show' : 'Done';
+                $chip.find('.chip__main').append(
+                    '<span class="chip__badge ' + badgeClass + '">' + badgeText + '</span>'
+                );
+            }).fail(function () {
+                showCustomAlert('Network Error', 'Network error — please try again.');
+                $btn.prop('disabled', false).text(newStatus === 'no_show' ? '✗' : '✓');
+            });
+        });
+    });
+});
+</script>
+{% endif %}
+{% endblock %}
