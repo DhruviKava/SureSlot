@@ -34,8 +34,8 @@ INSTALLED_APPS = [
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
-    'cloudinary_storage',
     'django.contrib.staticfiles',
+    'cloudinary_storage',
     'rest_framework',
     'rest_framework.authtoken',
     'tenants',
@@ -153,6 +153,18 @@ STORAGES = {
     },
 }
 
+# Backwards-compatible settings expected by some third-party packages
+# `DEFAULT_FILE_STORAGE` (no leading underscore) is used by Django.
+DEFAULT_FILE_STORAGE = _DEFAULT_FILE_STORAGE
+
+# Some packages (e.g. older cloudinary_storage) check `STATICFILES_STORAGE`.
+# Use Cloudinary for static files when a cloud name is configured, otherwise
+# fall back to the "staticfiles" backend (WhiteNoise).
+if CLOUDINARY_CLOUD_NAME:
+    STATICFILES_STORAGE = "cloudinary_storage.storage.StaticCloudinaryStorage"
+else:
+    STATICFILES_STORAGE = STORAGES["staticfiles"]["BACKEND"]
+
 LOGIN_URL = 'login'
 LOGIN_REDIRECT_URL = 'home'
 LOGOUT_REDIRECT_URL = 'login'
@@ -200,3 +212,22 @@ CELERY_BEAT_SCHEDULE = {
         'schedule': 3600.0,  # Runs every hour
     },
 }
+
+# Production security settings
+# When `DEBUG` is False, enable common secure defaults suitable for
+# deployments (values can be overridden via environment variables).
+if not DEBUG:
+    SECURE_SSL_REDIRECT = config('SECURE_SSL_REDIRECT', default=True, cast=bool)
+    SESSION_COOKIE_SECURE = config('SESSION_COOKIE_SECURE', default=True, cast=bool)
+    CSRF_COOKIE_SECURE = config('CSRF_COOKIE_SECURE', default=True, cast=bool)
+    SECURE_HSTS_SECONDS = config('SECURE_HSTS_SECONDS', default=31536000, cast=int)
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = config('SECURE_HSTS_INCLUDE_SUBDOMAINS', default=True, cast=bool)
+    SECURE_HSTS_PRELOAD = config('SECURE_HSTS_PRELOAD', default=True, cast=bool)
+    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
+# Allow setting CSRF trusted origins via environment variable (comma-separated)
+CSRF_TRUSTED_ORIGINS = config('CSRF_TRUSTED_ORIGINS', default='')
+if CSRF_TRUSTED_ORIGINS:
+    CSRF_TRUSTED_ORIGINS = [o.strip() for o in CSRF_TRUSTED_ORIGINS.split(',') if o.strip()]
+else:
+    CSRF_TRUSTED_ORIGINS = []
